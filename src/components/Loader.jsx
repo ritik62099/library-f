@@ -11,6 +11,7 @@ export default function Loader({ text = "Loading..." }) {
         justifyContent: "center",
         padding: "20px",
         gap: "10px",
+        
       }}
     >
       <div
