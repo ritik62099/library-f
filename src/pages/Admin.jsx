@@ -81,7 +81,7 @@ export default function Admin() {
       {/* Fixed QR Code */}
       <div style={{ margin: "0 auto 30px", textAlign: "center", padding: 20, border: "1px solid #ddd", borderRadius: 10, boxShadow: "0 2px 8px rgba(0,0,0,0.05)", background: "#fafafa", width: 250 }}>
         <h3>📌 Fixed QR Code</h3>
-        <QRCodeCanvas value="http://localhost:3000/attendance" size={180} />
+        <QRCodeCanvas value="https://library-f.vercel.app/attendance" size={180} />
         <p style={{ marginTop: 10, fontSize: 14 }}>Scan this QR to mark attendance</p>
       </div>
 
