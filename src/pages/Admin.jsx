@@ -1,3 +1,6 @@
+
+
+
 // import { useState, useEffect } from "react";
 // import { QRCodeCanvas } from "qrcode.react";
 // import { API } from "../services/api";
@@ -18,10 +21,10 @@
 
 //   const fetchStudents = async () => {
 //     try {
-//       const res = await API.get("/students");
+//       const res = await API.get("/students"); // backend filters by admin
 //       setStudents(res.data);
 //     } catch (err) {
-//       setError(err.message);
+//       setError(err.response?.data?.error || err.message);
 //     }
 //   };
 
@@ -35,16 +38,10 @@
 
 //     setLoading(true);
 //     try {
-//       await API.post("/students", form);
-//       setForm({
-//         name: "",
-//         rollNo: "",
-//         email: "",
-//         mobile: "",
-//         address: "",
-//         monthlyFee: "",
-//       });
+//       await API.post("/students", form); // backend attaches admin
+//       setForm({ name: "", rollNo: "", email: "", mobile: "", address: "", monthlyFee: "" });
 //       fetchStudents();
+//       setError(""); // clear previous error
 //     } catch (err) {
 //       setError(err.response?.data?.error || err.message);
 //     } finally {
@@ -58,14 +55,13 @@
 //       await API.delete(`/students/${id}`);
 //       fetchStudents();
 //     } catch (err) {
-//       setError(err.message);
+//       setError(err.response?.data?.error || err.message);
 //     }
 //   };
 
 //   const handlePayment = async (student) => {
-//     const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+//     const currentMonth = new Date().toISOString().slice(0, 7);
 //     const amount = student.monthlyFee || 0;
-
 //     try {
 //       await API.put(`/students/${student._id}/payment`, { amount });
 //       fetchStudents();
@@ -73,6 +69,8 @@
 //       console.error(err);
 //     }
 //   };
+
+//   const inputStyle = { padding: 10, borderRadius: 6, border: "1px solid #ccc", fontSize: 14 };
 
 //   return (
 //     <div style={{ maxWidth: 1000, margin: "0 auto", padding: 20, fontFamily: "sans-serif" }}>
@@ -86,7 +84,7 @@
 //       </div>
 
 //       {/* Add Student Form */}
-//       <form onSubmit={handleSubmit} style={{ marginBottom: "30px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, background: "#fff", padding: 20, borderRadius: 10, boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
+//       <form onSubmit={handleSubmit} style={{ marginBottom: 30, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, background: "#fff", padding: 20, borderRadius: 10, boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
 //         <input type="text" placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} style={inputStyle} />
 //         <input type="text" placeholder="Roll No" value={form.rollNo} onChange={(e) => setForm({ ...form, rollNo: e.target.value })} style={inputStyle} />
 //         <input type="email" placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} style={inputStyle} />
@@ -129,8 +127,6 @@
 //   );
 // }
 
-// const inputStyle = { padding: 10, borderRadius: 6, border: "1px solid #ccc", fontSize: 14 };
-
 
 
 import { useState, useEffect } from "react";
@@ -150,6 +146,8 @@ export default function Admin() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const adminId = localStorage.getItem("adminId"); // ✅ Personal QR
 
   const fetchStudents = async () => {
     try {
@@ -173,7 +171,7 @@ export default function Admin() {
       await API.post("/students", form); // backend attaches admin
       setForm({ name: "", rollNo: "", email: "", mobile: "", address: "", monthlyFee: "" });
       fetchStudents();
-      setError(""); // clear previous error
+      setError("");
     } catch (err) {
       setError(err.response?.data?.error || err.message);
     } finally {
@@ -208,10 +206,13 @@ export default function Admin() {
     <div style={{ maxWidth: 1000, margin: "0 auto", padding: 20, fontFamily: "sans-serif" }}>
       <h2 style={{ textAlign: "center", marginBottom: 30 }}>👨‍🏫 Admin Dashboard</h2>
 
-      {/* Fixed QR Code */}
+      {/* Personal QR Code */}
       <div style={{ margin: "0 auto 30px", textAlign: "center", padding: 20, border: "1px solid #ddd", borderRadius: 10, boxShadow: "0 2px 8px rgba(0,0,0,0.05)", background: "#fafafa", width: 250 }}>
-        <h3>📌 Fixed QR Code</h3>
-        <QRCodeCanvas value="https://library-f.vercel.app/attendance" size={180} />
+        <h3>📌 Your QR Code</h3>
+        <QRCodeCanvas
+          value={`https://library-f.vercel.app/attendance?admin=${admin._id}`}
+          size={180}
+        />
         <p style={{ marginTop: 10, fontSize: 14 }}>Scan this QR to mark attendance</p>
       </div>
 
