@@ -60,11 +60,15 @@ API.interceptors.request.use((config) => {
     config.url.startsWith(route)
   );
 
+  // Sirf non-public routes pe token bhejo
   if (token && !isPublic) {
     config.headers.Authorization = `Bearer ${token}`;
+  } else {
+    delete config.headers.Authorization; // ⚡ remove token if public
   }
 
   return config;
 });
+
 
 export { API };
