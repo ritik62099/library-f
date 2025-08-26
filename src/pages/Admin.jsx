@@ -18,7 +18,7 @@ export default function Admin() {
 
   const fetchStudents = async () => {
     try {
-      const res = await API.get("/students"); // backend filters by admin
+      const res = await API.get("/students"); 
       setStudents(res.data);
     } catch (err) {
       setError(err.response?.data?.error || err.message);
@@ -35,7 +35,7 @@ export default function Admin() {
 
     setLoading(true);
     try {
-      await API.post("/students", form); // backend attaches admin
+      await API.post("/students", form); 
       setForm({
         name: "",
         rollNo: "",
@@ -45,7 +45,7 @@ export default function Admin() {
         monthlyFee: "",
       });
       fetchStudents();
-      setError(""); // clear previous error
+      setError(""); 
     } catch (err) {
       setError(err.response?.data?.error || err.message);
     } finally {
@@ -78,9 +78,10 @@ export default function Admin() {
     borderRadius: 6,
     border: "1px solid #ccc",
     fontSize: 14,
+    width: "100%", // ✅ full width on mobile
+    boxSizing: "border-box",
   };
 
-  // ✅ QR Download function (with white bg + text)
   const downloadQR = () => {
     const canvas = document.getElementById("fixed-qr");
     const qrImage = canvas.toDataURL("image/png");
@@ -93,7 +94,6 @@ export default function Admin() {
     newCanvas.width = qrSize;
     newCanvas.height = qrSize + textHeight;
 
-    // White background
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
 
@@ -101,14 +101,11 @@ export default function Admin() {
     img.src = qrImage;
     img.onload = () => {
       ctx.drawImage(img, 0, 0);
-
-      // Text below QR
       ctx.fillStyle = "#000000";
       ctx.font = "16px Arial";
       ctx.textAlign = "center";
       ctx.fillText("Attendance QR", newCanvas.width / 2, qrSize + 25);
 
-      // Download
       const pngUrl = newCanvas
         .toDataURL("image/png")
         .replace("image/png", "image/octet-stream");
@@ -144,23 +141,23 @@ export default function Admin() {
           borderRadius: 10,
           boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
           background: "#fafafa",
-          width: 250,
+          width: "100%",
+          maxWidth: 300, // ✅ responsive max width
         }}
       >
         <h3>📌 Fixed QR Code</h3>
         <QRCodeCanvas
           id="fixed-qr"
           value="https://library-f.vercel.app/attendance"
-          size={180}
-          bgColor="#ffffff"      // white background in QR itself
-          includeMargin={true}   // extra space
+          size={200}
+          bgColor="#ffffff"
+          includeMargin={true}
+          style={{ maxWidth: "100%" }}
         />
         <p style={{ marginTop: 10, fontSize: 14 }}>
           Scan this QR to mark attendance
         </p>
-
-        {/* ✅ Download QR Button */}
-        <Button onClick={downloadQR} style={{ marginTop: 10 }}>
+        <Button onClick={downloadQR} style={{ marginTop: 10, width: "100%" }}>
           ⬇️ Download QR
         </Button>
       </div>
@@ -179,69 +176,25 @@ export default function Admin() {
           boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
         }}
       >
-        <input
-          type="text"
-          placeholder="Name"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-          style={inputStyle}
-        />
-        <input
-          type="text"
-          placeholder="Roll No"
-          value={form.rollNo}
-          onChange={(e) => setForm({ ...form, rollNo: e.target.value })}
-          style={inputStyle}
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
-          style={inputStyle}
-        />
-        <input
-          type="text"
-          placeholder="Mobile"
-          value={form.mobile}
-          onChange={(e) => setForm({ ...form, mobile: e.target.value })}
-          style={inputStyle}
-        />
-        <input
-          type="text"
-          placeholder="Address"
-          value={form.address}
-          onChange={(e) => setForm({ ...form, address: e.target.value })}
-          style={inputStyle}
-        />
-        <input
-          type="number"
-          placeholder="Monthly Fee"
-          value={form.monthlyFee}
-          onChange={(e) => setForm({ ...form, monthlyFee: e.target.value })}
-          style={inputStyle}
-        />
-        <Button
-          type="submit"
-          loading={loading}
-          style={{ gridColumn: "1 / -1", marginTop: 10 }}
-        >
+        <input type="text" placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} style={inputStyle} />
+        <input type="text" placeholder="Roll No" value={form.rollNo} onChange={(e) => setForm({ ...form, rollNo: e.target.value })} style={inputStyle} />
+        <input type="email" placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} style={inputStyle} />
+        <input type="text" placeholder="Mobile" value={form.mobile} onChange={(e) => setForm({ ...form, mobile: e.target.value })} style={inputStyle} />
+        <input type="text" placeholder="Address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} style={inputStyle} />
+        <input type="number" placeholder="Monthly Fee" value={form.monthlyFee} onChange={(e) => setForm({ ...form, monthlyFee: e.target.value })} style={inputStyle} />
+        <Button type="submit" loading={loading} style={{ gridColumn: "1 / -1", marginTop: 10, width: "100%" }}>
           Add Student
         </Button>
       </form>
 
-      {error && (
-        <p style={{ color: "red", textAlign: "center" }}>❌ {error}</p>
-      )}
+      {error && <p style={{ color: "red", textAlign: "center" }}>❌ {error}</p>}
 
       {/* Students List */}
       <h3 style={{ marginBottom: 15 }}>📋 Students List</h3>
       <div style={{ display: "grid", gap: 15 }}>
         {students.map((s) => {
           const currentMonth = new Date().toISOString().slice(0, 7);
-          const paidThisMonth = s.payments?.some(
-            (p) => p.month === currentMonth && p.paid
-          );
+          const paidThisMonth = s.payments?.some((p) => p.month === currentMonth && p.paid);
 
           return (
             <div
@@ -252,44 +205,23 @@ export default function Admin() {
                 boxShadow: "0 1px 5px rgba(0,0,0,0.05)",
                 background: "#fff",
                 display: "grid",
-                gridTemplateColumns: "repeat(2, 1fr)",
+                gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", // ✅ responsive grid
                 gap: 6,
               }}
             >
-              <div>
-                <strong>Name:</strong> {s.name}
-              </div>
-              <div>
-                <strong>Roll No:</strong> {s.rollNo}
-              </div>
-              <div>
-                <strong>Email:</strong> {s.email || "-"}
-              </div>
-              <div>
-                <strong>Mobile:</strong> {s.mobile || "-"}
-              </div>
-              <div>
-                <strong>Address:</strong> {s.address || "-"}
-              </div>
-              <div>
-                <strong>Monthly Fee:</strong> ₹ {s.monthlyFee || 0}
-              </div>
+              <div><strong>Name:</strong> {s.name}</div>
+              <div><strong>Roll No:</strong> {s.rollNo}</div>
+              <div><strong>Email:</strong> {s.email || "-"}</div>
+              <div><strong>Mobile:</strong> {s.mobile || "-"}</div>
+              <div><strong>Address:</strong> {s.address || "-"}</div>
+              <div><strong>Monthly Fee:</strong> ₹ {s.monthlyFee || 0}</div>
               <div>
                 <strong>Paid:</strong>{" "}
-                <input
-                  type="checkbox"
-                  checked={paidThisMonth}
-                  onChange={() => handlePayment(s)}
-                />
-                {paidThisMonth && (
-                  <span style={{ color: "green", marginLeft: 6 }}>✔️</span>
-                )}
+                <input type="checkbox" checked={paidThisMonth} onChange={() => handlePayment(s)} />
+                {paidThisMonth && <span style={{ color: "green", marginLeft: 6 }}>✔️</span>}
               </div>
               <div style={{ gridColumn: "1 / -1" }}>
-                <Button
-                  onClick={() => handleDelete(s._id)}
-                  style={{ padding: "4px 8px" }}
-                >
+                <Button onClick={() => handleDelete(s._id)} style={{ padding: "4px 8px", width: "100%" }}>
                   ❌ Delete
                 </Button>
               </div>
