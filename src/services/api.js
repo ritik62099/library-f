@@ -50,7 +50,6 @@ const API = axios.create({
   baseURL: "https://library-api-sable.vercel.app/api",
 });
 
-// Interceptor → sirf admin/private routes ke liye token
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
 
