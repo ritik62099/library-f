@@ -29,13 +29,15 @@ const API = axios.create({
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
 
-  if (
-    token &&
-    (config.url.startsWith("/students") ||
-      config.url.startsWith("/auth") ||
-      config.url.startsWith("/attendance/today"))
-  ) {
-    config.headers.Authorization = `Bearer ${token}`;
+  // ✅ sirf private routes me token bhejna
+  if (token) {
+    if (
+      config.url.startsWith("/students") ||
+      config.url.startsWith("/auth/me") ||
+      config.url.startsWith("/attendance/today")
+    ) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
   }
 
   return config;

@@ -146,6 +146,8 @@
 // }
 
 
+
+
 import { useState } from "react";
 import { API } from "../services/api";
 import Button from "../components/Button";
@@ -156,54 +158,85 @@ export default function AttendanceForm() {
   const [message, setMessage] = useState({ text: "", type: "" });
   const [nextPayment, setNextPayment] = useState("");
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   if (!form.name || !form.rollNo) {
+  //     setMessage({ text: "❌ Please fill all fields", type: "error" });
+  //     return;
+  //   }
+
+  //   setLoading(true);
+  //   try {
+  //     // Fetch students for this admin
+  //     const students = await API.get("/students");
+  //     const found = students.data.find(
+  //       (s) =>
+  //         s.rollNo.toLowerCase() === form.rollNo.toLowerCase() &&
+  //         s.name.toLowerCase() === form.name.toLowerCase()
+  //     );
+
+  //     if (!found) {
+  //       setMessage({ text: "❌ Student not found, contact admin.", type: "error" });
+  //       setNextPayment("");
+  //     } else {
+  //       await API.post("/attendance/mark", { studentId: found._id }); // public mark
+
+  //       setMessage({ text: "✅ Attendance marked successfully!", type: "success" });
+  //       setForm({ name: "", rollNo: "" });
+
+  //       // Calculate next payment month
+  //       const lastPaid = found.payments
+  //         ?.filter(p => p.paid)
+  //         .sort((a, b) => a.month.localeCompare(b.month))
+  //         .pop();
+
+  //       let nextMonth = new Date();
+  //       if (lastPaid) {
+  //         const [year, month] = lastPaid.month.split("-").map(Number);
+  //         nextMonth = new Date(year, month, 1);
+  //       }
+
+  //       const nextMonthStr = nextMonth.toLocaleString("default", { month: "long", year: "numeric" });
+  //       setNextPayment(`💰 Next library payment due: ${nextMonthStr}`);
+  //     }
+  //   } catch (err) {
+  //     setMessage({ text: "❌ " + (err.response?.data?.error || err.message), type: "error" });
+  //     setNextPayment("");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!form.name || !form.rollNo) {
-      setMessage({ text: "❌ Please fill all fields", type: "error" });
-      return;
+  e.preventDefault();
+  if (!form.name || !form.rollNo) {
+    setMessage({ text: "❌ Please fill all fields", type: "error" });
+    return;
+  }
+
+  setLoading(true);
+  try {
+    // ✅ Direct public API call with name + rollNo
+    const res = await API.post("/attendance/mark", {
+      name: form.name,
+      rollNo: form.rollNo,
+    });
+
+    setMessage({ text: "✅ Attendance marked successfully!", type: "success" });
+    setForm({ name: "", rollNo: "" });
+
+    // ✅ Next payment info from backend response
+    if (res.data.nextDue) {
+      setNextPayment(`💰 Next library payment due: ${res.data.nextDue}`);
     }
+  } catch (err) {
+    setMessage({ text: "❌ " + (err.response?.data?.error || err.message), type: "error" });
+    setNextPayment("");
+  } finally {
+    setLoading(false);
+  }
+};
 
-    setLoading(true);
-    try {
-      // Fetch students for this admin
-      const students = await API.get("/students");
-      const found = students.data.find(
-        (s) =>
-          s.rollNo.toLowerCase() === form.rollNo.toLowerCase() &&
-          s.name.toLowerCase() === form.name.toLowerCase()
-      );
-
-      if (!found) {
-        setMessage({ text: "❌ Student not found, contact admin.", type: "error" });
-        setNextPayment("");
-      } else {
-        await API.post("/attendance/mark", { studentId: found._id }); // public mark
-
-        setMessage({ text: "✅ Attendance marked successfully!", type: "success" });
-        setForm({ name: "", rollNo: "" });
-
-        // Calculate next payment month
-        const lastPaid = found.payments
-          ?.filter(p => p.paid)
-          .sort((a, b) => a.month.localeCompare(b.month))
-          .pop();
-
-        let nextMonth = new Date();
-        if (lastPaid) {
-          const [year, month] = lastPaid.month.split("-").map(Number);
-          nextMonth = new Date(year, month, 1);
-        }
-
-        const nextMonthStr = nextMonth.toLocaleString("default", { month: "long", year: "numeric" });
-        setNextPayment(`💰 Next library payment due: ${nextMonthStr}`);
-      }
-    } catch (err) {
-      setMessage({ text: "❌ " + (err.response?.data?.error || err.message), type: "error" });
-      setNextPayment("");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div style={{ maxWidth: 500, margin: "40px auto", padding: 25, borderRadius: 12, boxShadow: "0 4px 12px rgba(0,0,0,0.1)", background: "#fff", fontFamily: "system-ui, sans-serif" }}>

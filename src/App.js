@@ -25,10 +25,13 @@ function App() {
     checkAuth();
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    setIsAdminLoggedIn(false);
-  };
+ const handleLogout = () => {
+  localStorage.removeItem("token");
+  setIsAdminLoggedIn(false);
+
+  // ✅ Axios se bhi token hatao (fallback ke liye)
+  delete API.defaults.headers.common["Authorization"];
+};
 
   if (checkingAuth) return <p>Loading...</p>;
 
